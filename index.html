@@ -1,78 +1,202 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>E-Chain</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #222;
-      padding: 15px;
-      text-align: center;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 32px;
-      color: #4af;
-    }
-    .section {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
-      background: #1a1a1a;
-      border-radius: 12px;
-      box-shadow: 0 0 15px #4af;
-    }
-    .section h2 {
-      color: #4af;
-      margin-top: 0;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-      border-radius: 10px;
-    }
-    a.button {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: #4af;
-      color: #000;
-      font-weight: bold;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-    @media (max-width:600px){
-      iframe {height: 400px;}
-      header h1 {font-size: 24px;}
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Fire & Water – Pixel Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-family: monospace;
+    touch-action: manipulation;
+  }
+
+  canvas {
+    background: #000;
+    image-rendering: pixelated;
+    border: 2px solid #444;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    width: 70px;
+    height: 70px;
+    background: #222;
+    border: 2px solid #555;
+    color: white;
+    font-size: 24px;
+    border-radius: 10px;
+    user-select: none;
+  }
+
+  .btn:active {
+    background: #444;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>E-Chain</h1>
-  <p>Play indie games and ask AI questions instantly!</p>
-</header>
+<h3>🔥 Fire & 💧 Water</h3>
+<canvas id="game" width="320" height="240"></canvas>
 
-<!-- Games Section -->
-<div class="section">
-  <h2>🎮 Play Games</h2>
-  <a class="button" href="games.html">Go to Games</a>
+<div class="controls">
+  <div class="row">
+    <button class="btn" id="left">⬅️</button>
+    <button class="btn" id="right">➡️</button>
+  </div>
+  <button class="btn" id="jump">⤴️</button>
+  <button class="btn" id="switch">🔁</button>
 </div>
 
-<!-- AI Chat Section -->
-<div class="section">
-  <h2>🤖 Ask AI Anything</h2>
-  <iframe src="https://huggingface.co/spaces/yuntian-deng/ChatGPT"></iframe>
-</div>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const TILE = 16;
+const GRAVITY = 0.5;
+
+let currentPlayer = "fire";
+let levelIndex = 0;
+
+const levels = [
+[
+"####################",
+"#.................D#",
+"#..F...............#",
+"#..........W.......#",
+"#......####........#",
+"#....~.......^.....#",
+"####################"
+]
+];
+
+const colors = {
+  wall: "#555",
+  fire: "#ff4c4c",
+  water: "#4cc3ff",
+  lava: "#ff3300",
+  waterHazard: "#0066ff",
+  door: "#00ff99"
+};
+
+let players = {
+  fire: { x: 0, y: 0, vx: 0, vy: 0, onGround: false },
+  water: { x: 0, y: 0, vx: 0, vy: 0, onGround: false }
+};
+
+function loadLevel() {
+  const map = levels[levelIndex];
+  map.forEach((row, y) => {
+    [...row].forEach((cell, x) => {
+      if (cell === "F") {
+        players.fire.x = x * TILE;
+        players.fire.y = y * TILE;
+      }
+      if (cell === "W") {
+        players.water.x = x * TILE;
+        players.water.y = y * TILE;
+      }
+    });
+  });
+}
+loadLevel();
+
+function isSolid(x, y) {
+  const map = levels[levelIndex];
+  const tx = Math.floor(x / TILE);
+  const ty = Math.floor(y / TILE);
+  if (!map[ty]) return true;
+  return map[ty][tx] === "#";
+}
+
+function update(player) {
+  player.vy += GRAVITY;
+  player.x += player.vx;
+  if (isSolid(player.x, player.y) || isSolid(player.x + TILE-1, player.y)) {
+    player.x -= player.vx;
+  }
+
+  player.y += player.vy;
+  if (isSolid(player.x, player.y + TILE) || isSolid(player.x + TILE-1, player.y + TILE)) {
+    player.y = Math.floor(player.y / TILE) * TILE;
+    player.vy = 0;
+    player.onGround = true;
+  } else {
+    player.onGround = false;
+  }
+}
+
+function drawLevel() {
+  const map = levels[levelIndex];
+  map.forEach((row, y) => {
+    [...row].forEach((cell, x) => {
+      if (cell === "#") {
+        ctx.fillStyle = colors.wall;
+        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+      }
+      if (cell === "~") {
+        ctx.fillStyle = colors.waterHazard;
+        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+      }
+      if (cell === "^") {
+        ctx.fillStyle = colors.lava;
+        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+      }
+      if (cell === "D") {
+        ctx.fillStyle = colors.door;
+        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+      }
+    });
+  });
+}
+
+function drawPlayer(p, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(p.x, p.y, TILE, TILE);
+}
+
+function loop() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawLevel();
+
+  update(players.fire);
+  update(players.water);
+
+  drawPlayer(players.fire, colors.fire);
+  drawPlayer(players.water, colors.water);
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* MOBILE CONTROLS */
+document.getElementById("left").ontouchstart = () => players[currentPlayer].vx = -2;
+document.getElementById("right").ontouchstart = () => players[currentPlayer].vx = 2;
+document.getElementById("jump").ontouchstart = () => {
+  if (players[currentPlayer].onGround) players[currentPlayer].vy = -8;
+};
+document.getElementById("switch").ontouchstart = () => {
+  currentPlayer = currentPlayer === "fire" ? "water" : "fire";
+};
+
+document.addEventListener("touchend", () => {
+  players[currentPlayer].vx = 0;
+});
+</script>
 
 </body>
 </html>
