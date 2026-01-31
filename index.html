@@ -1,202 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Fire & Water – Pixel Mobile</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    margin: 0;
-    background: #111;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: white;
-    font-family: monospace;
-    touch-action: manipulation;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FireBoy and WaterGirl</title>
+  <script src="./p5/p5.min.js"></script> 
+   <script src="./scripts/draw.js"></script>
 
-  canvas {
-    background: #000;
-    image-rendering: pixelated;
-    border: 2px solid #444;
-  }
-
-  .controls {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .btn {
-    width: 70px;
-    height: 70px;
-    background: #222;
-    border: 2px solid #555;
-    color: white;
-    font-size: 24px;
-    border-radius: 10px;
-    user-select: none;
-  }
-
-  .btn:active {
-    background: #444;
-  }
-
-  .row {
-    display: flex;
-    gap: 10px;
-  }
-</style>
+  <link rel="stylesheet" href="./styles/styles.css" />
 </head>
 <body>
+  <header>
+    <img src="assets/images/Logo.png" class="logo">
+  </header>
+  <section class="home">
+    <img src="assets/images/mount2.png" class="mount2">
+    <img src="assets/images/mount1.png" class="mount1">
+    <img src="assets/images/bush2.png" class="bush2">
+    <h1 class="title">FireBoy and WaterGirl</h1>
+    <img src="assets/images/bush1.png" class="bush1">
+    <img src="assets/images/leaf2.png" class="leaf2">
+    <img src="assets/images/leaf1.png" class="leaf1">
+  </section>
 
-<h3>🔥 Fire & 💧 Water</h3>
-<canvas id="game" width="320" height="240"></canvas>
+  <div class="choose-container">
+    <h1>Draw your characters!</h1>
+    <h3>Leave it empty to play with the real fireboy and watergirl :)</h3>
 
-<div class="controls">
-  <div class="row">
-    <button class="btn" id="left">⬅️</button>
-    <button class="btn" id="right">➡️</button>
+
+    <div id="canvasContainer1" class="canvas-container">
+      <p id="player1-Text">Draw Player 1</p>
+      <div class="button-wrapper">
+        <button id="clearButton1">Clear</button>
+        <div id="canvasWrapper1"></div>
+        <button id="nextButton1">Next</button>
+      </div>
+    </div>
+
+
+    <div id="canvasContainer2" class="canvas-container">
+      <p id="player2-Text">Draw Player 2</p>
+      <div class="button-wrapper">
+        <button id="clearButton2">Clear</button>
+        <div id="canvasWrapper2"></div>
+        <button id="nextButton2" >Next</button>
+      </div>
+    </div>
+
+    
   </div>
-  <button class="btn" id="jump">⤴️</button>
-  <button class="btn" id="switch">🔁</button>
-</div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const TILE = 16;
-const GRAVITY = 0.5;
+  <div id="canvasContainer" class="canvas-container" style="margin: 0;" >
 
-let currentPlayer = "fire";
-let levelIndex = 0;
+    <div class="button-wrapper-2">
+      <button id="defaultBtn">Use Default</button><img src="./assets/images/tick.png" class="tick" style="visibility: hidden;" >
+    </div>
+  </div>
 
-const levels = [
-[
-"####################",
-"#.................D#",
-"#..F...............#",
-"#..........W.......#",
-"#......####........#",
-"#....~.......^.....#",
-"####################"
-]
-];
+  
 
-const colors = {
-  wall: "#555",
-  fire: "#ff4c4c",
-  water: "#4cc3ff",
-  lava: "#ff3300",
-  waterHazard: "#0066ff",
-  door: "#00ff99"
-};
-
-let players = {
-  fire: { x: 0, y: 0, vx: 0, vy: 0, onGround: false },
-  water: { x: 0, y: 0, vx: 0, vy: 0, onGround: false }
-};
-
-function loadLevel() {
-  const map = levels[levelIndex];
-  map.forEach((row, y) => {
-    [...row].forEach((cell, x) => {
-      if (cell === "F") {
-        players.fire.x = x * TILE;
-        players.fire.y = y * TILE;
-      }
-      if (cell === "W") {
-        players.water.x = x * TILE;
-        players.water.y = y * TILE;
-      }
-    });
-  });
-}
-loadLevel();
-
-function isSolid(x, y) {
-  const map = levels[levelIndex];
-  const tx = Math.floor(x / TILE);
-  const ty = Math.floor(y / TILE);
-  if (!map[ty]) return true;
-  return map[ty][tx] === "#";
-}
-
-function update(player) {
-  player.vy += GRAVITY;
-  player.x += player.vx;
-  if (isSolid(player.x, player.y) || isSolid(player.x + TILE-1, player.y)) {
-    player.x -= player.vx;
-  }
-
-  player.y += player.vy;
-  if (isSolid(player.x, player.y + TILE) || isSolid(player.x + TILE-1, player.y + TILE)) {
-    player.y = Math.floor(player.y / TILE) * TILE;
-    player.vy = 0;
-    player.onGround = true;
-  } else {
-    player.onGround = false;
-  }
-}
-
-function drawLevel() {
-  const map = levels[levelIndex];
-  map.forEach((row, y) => {
-    [...row].forEach((cell, x) => {
-      if (cell === "#") {
-        ctx.fillStyle = colors.wall;
-        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-      }
-      if (cell === "~") {
-        ctx.fillStyle = colors.waterHazard;
-        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-      }
-      if (cell === "^") {
-        ctx.fillStyle = colors.lava;
-        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-      }
-      if (cell === "D") {
-        ctx.fillStyle = colors.door;
-        ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-      }
-    });
-  });
-}
-
-function drawPlayer(p, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(p.x, p.y, TILE, TILE);
-}
-
-function loop() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawLevel();
-
-  update(players.fire);
-  update(players.water);
-
-  drawPlayer(players.fire, colors.fire);
-  drawPlayer(players.water, colors.water);
-
-  requestAnimationFrame(loop);
-}
-loop();
-
-/* MOBILE CONTROLS */
-document.getElementById("left").ontouchstart = () => players[currentPlayer].vx = -2;
-document.getElementById("right").ontouchstart = () => players[currentPlayer].vx = 2;
-document.getElementById("jump").ontouchstart = () => {
-  if (players[currentPlayer].onGround) players[currentPlayer].vy = -8;
-};
-document.getElementById("switch").ontouchstart = () => {
-  currentPlayer = currentPlayer === "fire" ? "water" : "fire";
-};
-
-document.addEventListener("touchend", () => {
-  players[currentPlayer].vx = 0;
-});
-</script>
-
+  <div class="game-container-wrapper">
+    <div id="gameContainer"></div>
+  </div>
+  <div id="touch-controls-wrapper">
+  <div id="touch-controls-player1">
+    <button id="left1" class="touch-button">⬅️</button>
+    <button id="right1" class="touch-button">➡️</button>
+    <button id="up1" class="touch-button">⬆️</button>
+  </div>
+  
+  <div id="touch-controls-player2">
+    <button id="left2" class="touch-button">⬅️</button>
+    <button id="right2" class="touch-button">➡️</button>
+    <button id="up2" class="touch-button">⬆️</button>
+  </div>
+  </div>
+  
+  <div class="page-footer"></div>
+  <script src="scripts/main.js"></script>
+  <script src="./scripts/phaser.min.js"></script>
+  <script type="module" src="scripts/game.js"></script>
 </body>
 </html>
