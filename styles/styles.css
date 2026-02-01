@@ -369,3 +369,18 @@ button:hover {
 #touch-controls-player2 #right2 {
     grid-column: 3;
 }
+@media screen and (orientation: portrait) {
+  body::before {
+    content: "Rotate your phone to landscape 🎮";
+    position: fixed;
+    inset: 0;
+    background: #3B3291;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-size: 24px;
+    text-align: center;
+  }
+}
