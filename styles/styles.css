@@ -306,3 +306,66 @@ button:hover {
         margin-bottom: 0;
     }
 }
+
+/* FORCE MOBILE LANDSCAPE */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    body::before {
+        content: "Please rotate your phone to landscape 📱➡️";
+        position: fixed;
+        inset: 0;
+        background: #3B3291;
+        color: white;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        text-align: center;
+        padding: 20px;
+    }
+
+    body > * {
+        display: none !important;
+    }
+}
+
+/* JOYSTICK STYLE */
+#touch-controls-wrapper {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    pointer-events: auto;
+}
+
+#touch-controls-player1,
+#touch-controls-player2 {
+    display: grid;
+    grid-template-columns: 50px 50px 50px;
+    grid-template-rows: 50px 50px;
+    gap: 8px;
+}
+
+#touch-controls-player1 {
+    margin-left: 10px;
+}
+
+#touch-controls-player2 {
+    margin-right: 10px;
+}
+
+#touch-controls-player1 #up1,
+#touch-controls-player2 #up2 {
+    grid-column: 2;
+}
+
+#touch-controls-player1 #left1,
+#touch-controls-player2 #left2 {
+    grid-column: 1;
+}
+
+#touch-controls-player1 #right1,
+#touch-controls-player2 #right2 {
+    grid-column: 3;
+}
