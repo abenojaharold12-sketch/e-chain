@@ -69,10 +69,39 @@ var GameLevel1 = new GameLevel("level1", "tilemap1",data1);
 var GameLevel2 = new GameLevel("level2", "tilemap2",data2);
 var GameLevel3 = new GameLevel("level3", "tilemap3",data3);
 
+// ===============================
+// MOBILE TOUCH INPUT (GLOBAL)
+// ===============================
+window.touchState = {
+  p1: { left: false, right: false, up: false },
+  p2: { left: false, right: false, up: false }
+};
 
+function setupTouchButton(id, player, dir) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
 
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    window.touchState[player][dir] = true;
+  });
 
+  ["touchend", "touchcancel"].forEach(evt => {
+    btn.addEventListener(evt, () => {
+      window.touchState[player][dir] = false;
+    });
+  });
+}
 
+window.initTouchControls = function () {
+  setupTouchButton("left1", "p1", "left");
+  setupTouchButton("right1", "p1", "right");
+  setupTouchButton("up1", "p1", "up");
+
+  setupTouchButton("left2", "p2", "left");
+  setupTouchButton("right2", "p2", "right");
+  setupTouchButton("up2", "p2", "up");
+};
 
 
 
