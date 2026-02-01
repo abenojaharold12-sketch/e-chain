@@ -7,6 +7,10 @@ let touchState = {
   p1: { left: false, right: false, up: false },
   p2: { left: false, right: false, up: false }
 };
+let joystick = {
+  p1: { x: 0, y: 0 },
+  p2: { x: 0, y: 0 }
+};
 
 class GameLevel extends Phaser.Scene {
   constructor(levelName = "level1", mapName, Data) {
