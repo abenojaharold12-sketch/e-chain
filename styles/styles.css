@@ -384,3 +384,14 @@ button:hover {
     text-align: center;
   }
 }
+/* Lock page scrolling when game is visible */
+body {
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+/* Lock game container size */
+.game-container-wrapper {
+  min-height: 100vh;
+  overflow: hidden;
+}
